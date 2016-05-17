@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
+
+<Configuration status="off">
+  <Appenders>
+     <!-- ログ出力情報 -->
+     <RollingFile name="rolling" fileName="/DataGetter/log/DataGetter.log" filePattern="/DataGetter/log/DataGetter-%d{yyyy-MM-dd}-%i.zip">
+
+      <!-- ログ出力フォーマット -->
+      <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5level] %msg%n" charset="UTF-8"/>
+        <Policies>
+            <!-- ログファイルが指定したサイズに達した時にローテートする -->
+            <SizeBasedTriggeringPolicy size="20 MB" />
+        </Policies>
+        <DefaultRolloverStrategy max="10"/>
+    </RollingFile>
+  </Appenders>
+
+  <Loggers>
+    <Root level="debug">
+      <!-- 出力先指定 -->
+      <AppenderRef ref="rolling"/>
+    </Root>
+  </Loggers>
+</Configuration>
