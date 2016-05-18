@@ -40,12 +40,12 @@ public class DataGetterBusiness {
     /**
      * Dao
      */
-    @Autowired
-    Dao dao;
+     @Autowired
+      private Dao dao;
 
     /**
      * メイン処理実行
-     * @throws Exception
+     * @throws Exception 例外
      */
     public void execute() throws Exception{
         //変数初期化
@@ -113,7 +113,7 @@ public class DataGetterBusiness {
                 buf.append(" 差枚:");
                 buf.append(md.getSamai());
                 log.info(buf.toString());
-                dao.insert(md.getDate(), md.getMachineNo(), md.getMachineName(), md.getGames(), md.getSamai());
+                dao.insertMachineData(md);
                 //トータル差枚数計算
                 totalGames = totalGames + md.getGames();
                 totalSamai = totalSamai + md.getSamai();
