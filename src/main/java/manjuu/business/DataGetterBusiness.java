@@ -18,6 +18,7 @@ import java.util.StringTokenizer;
 import javax.imageio.ImageIO;
 
 import manjuu.common.DGConst;
+import manjuu.common.Dao;
 import manjuu.common.DataGetterException;
 import manjuu.common.HtmlParser;
 import manjuu.common.MachineData;
@@ -27,6 +28,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class DataGetterBusiness {
 
@@ -34,6 +36,12 @@ public class DataGetterBusiness {
      * Log4j
      */
     private Logger log = LogManager.getLogger(DataGetterBusiness.class.getName ());
+
+    /**
+     * Dao
+     */
+    @Autowired
+    Dao dao;
 
     /**
      * メイン処理実行
@@ -105,6 +113,7 @@ public class DataGetterBusiness {
                 buf.append(" 差枚:");
                 buf.append(md.getSamai());
                 log.info(buf.toString());
+                dao.insert(md.getDate(), md.getMachineNo(), md.getMachineName(), md.getGames(), md.getSamai());
                 //トータル差枚数計算
                 totalGames = totalGames + md.getGames();
                 totalSamai = totalSamai + md.getSamai();

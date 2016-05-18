@@ -48,7 +48,7 @@ public class DGConst {
     /**
      * ターゲットホールのURL
      */
-    public final static String TARGET_URL = "http://papimo.jp/h/00031715/hit/view/";
+    public final static String TARGET_URL = "";
 
     /**
      * ソーリー画像
