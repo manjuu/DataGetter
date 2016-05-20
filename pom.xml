@@ -9,6 +9,17 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+  <!-- ビルド設定 -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.mybatis.generator</groupId>
+        <artifactId>mybatis-generator-maven-plugin</artifactId>
+        <version>1.3.2</version>
+      </plugin>
+    </plugins>
+  </build>
+
   <!--- 依存ライブラリの設定 -->
   <dependencies>
     <dependency>
@@ -44,7 +55,7 @@
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>6.0.2</version>
+      <version>5.1.39</version>
     </dependency>
 
     <dependency>

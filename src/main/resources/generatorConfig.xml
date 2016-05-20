@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration >
+    <!-- JDBCの格納場所を指定　日本語がパス内に入っているとうまく機能しない場合あり -->
+    <classPathEntry location="C:\Users\amila\.m2\repository\mysql\mysql-connector-java\5.1.39\mysql-connector-java-5.1.39.jar"/>
+    <context id="context1" >
+        <!-- コメント -->
+        <commentGenerator >
+            <!--コメント 有効にするとMapper及びModelにコメントが追記される。-->
+            <!--<property name="suppressAllComments" value="true"/>-->
+            <!-- コメントのタイムスタンプ　有効にするとMapper及びModelにタイムスタンプが追記される。-->
+            <!--<property name="suppressDate" value="true" /> -->
+        </commentGenerator>
+        <!-- JDBCの接続　 -->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://192.168.1.17:3307/DataGetter?useSSL=false" userId="iku" password="iku" />
+        <!-- タイプ変換 -->
+        <javaTypeResolver>
+            <!-- 数値型（Long, Integer, Short, etc.）をbigdecimalに変更するか -->
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+        <!-- Modelの格納先 targetProjectはsrc\main\javaまでを指定（それ以降のディレクトリはtargetPackageにより自動生成される。）-->
+        <javaModelGenerator targetPackage="manjuu.model.entity" targetProject="D:\Eclipse\workspace\DataGetter\src\main\java" />
+        <!-- sqlMap（XML）の格納先 -->
+      <sqlMapGenerator targetPackage="manjuu.model.mapper" targetProject="D:\Eclipse\workspace\DataGetter\src\main\java" />
+        <!--DAO（Mapper）の格納先-->
+      <javaClientGenerator targetPackage="manjuu.model.mapper" targetProject="D:\Eclipse\workspace\DataGetter\src\main\java" type="XMLMAPPER" />
+        <!-- テーブル指定　ワイルドカード（%）OK -->
+      <table schema="DataGetter"
+            tableName="%"
+            enableInsert="true"
+            enableSelectByPrimaryKey="true"
+            enableSelectByExample="true"
+            enableUpdateByPrimaryKey="true"
+            enableUpdateByExample="true"
+            enableDeleteByPrimaryKey="true"
+            enableDeleteByExample="true"
+            enableCountByExample="true"
+            selectByExampleQueryId="true"
+            modelType="hierarchical">
+        </table>
+    </context>
+</generatorConfiguration>
