@@ -360,7 +360,7 @@ public class DataGetterBusiness {
         // 差枚0Y座標
         int zeroPx = Integer.parseInt(prop.getZero_px());
         // 1PXあたりのメダル
-        int medalOnePx = Integer.parseInt(prop.getMedal_px());
+        double medalOnePx = Double.parseDouble(prop.getMedal_px());
 
         pixel = y - zeroPx;
         log.debug("Pixel:{}", pixel);
