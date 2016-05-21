@@ -8,7 +8,7 @@ import org.htmlcleaner.XPatherException;
 public class HtmlParser {
 
     // ロガーの宣言
-    private Logger log = LogManager.getLogger(HtmlParser.class.getName ());
+    private Logger log = LogManager.getLogger();
 
     // ノード
     private TagNode root;
@@ -72,6 +72,7 @@ public class HtmlParser {
 
             if (info_nodes.length > 0) {
                 name = info_nodes[0].toString();
+                log.debug("MachineName:{}", name);
             } else {
                 log.error("機種名取得に失敗");
                 throw new DataGetterException();
@@ -114,6 +115,7 @@ public class HtmlParser {
 
             if (info_nodes.length > 0) {
                 games = info_nodes[0].toString().replace(",","");
+                log.debug("Games:{}", games);
             } else {
                 log.error("総スタート数取得に失敗");
                 throw new DataGetterException();

@@ -2,17 +2,17 @@ package manjuu.app;
 
 import java.util.Arrays;
 
+import manjuu.common.Property;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-
 
 abstract class Base {
 
     /**
      * Log4j
      */
-    private Logger log = LogManager.getLogger(Base.class.getName ());
+    private Logger log = LogManager.getLogger();
 
     /**
      * コマンド名
@@ -26,7 +26,7 @@ abstract class Base {
      */
     protected int load (String[]args) {
 
-        log.info(commandName + " -start- " + Arrays.asList(args));
+        log.info("{} -start- {}", commandName, Arrays.asList(args));
 
         int exitcode = 0;
 
@@ -34,13 +34,15 @@ abstract class Base {
             // 引数チェック
             checkArgs(args);
             // 設定ファイルの読み込み
+            Property prop = new Property();
+            prop.load();
             // ビジネスクラスの実行
             execute();
         } catch (Exception e) {
             exitcode = 9;
         }
 
-        log.info(commandName + " -end- exitcode:" + exitcode);
+        log.info("{} -end- exitcode:{}", commandName, exitcode);
 
         return exitcode;
     }

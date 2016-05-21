@@ -19,9 +19,10 @@ import java.util.StringTokenizer;
 import javax.imageio.ImageIO;
 
 import manjuu.common.DGConst;
-import manjuu.common.Dao;
 import manjuu.common.DataGetterException;
 import manjuu.common.HtmlParser;
+import manjuu.common.MachineData;
+import manjuu.mbg.mapper.MachineDataMapper;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
@@ -35,13 +36,13 @@ public class DataGetterBusiness {
     /**
      * Log4j
      */
-    private Logger log = LogManager.getLogger(DataGetterBusiness.class.getName ());
+    private Logger log = LogManager.getLogger();
 
     /**
-     * Dao
+     * mapper
      */
      @Autowired
-      private Dao dao;
+      private MachineDataMapper mapper;
 
     /**
      * メイン処理実行
@@ -79,6 +80,8 @@ public class DataGetterBusiness {
 
             //台数分ループ処理
             for (String number : machineList) {
+                log.debug("MachineNumber:{}", number);
+
                 //台データ格納ディレクトリ作成処理
                 createDir(DGConst.REQ_S_DIR + number);
                 //ゴミファイル削除処理
@@ -95,7 +98,7 @@ public class DataGetterBusiness {
                 htmlparse = new HtmlParser(node);
                 graphUrl = htmlparse.getGraph(number);
                 //グラフ画像ダウンロード処理
-                download(graphUrl, DGConst.REQ_S_DIR + number + "/" + "tmp.png");
+                download(graphUrl, DGConst.REQ_S_DIR  + number + "/" + "tmp.png");
                 //台番号
                 md.setMachineNo(number);
                 //機種名取得
@@ -113,19 +116,19 @@ public class DataGetterBusiness {
                 buf.append(" 差枚:");
                 buf.append(md.getSamai());
                 log.info(buf.toString());
-                dao.insertMachineData(md);
+                insertMachineData(md);
                 //トータル差枚数計算
                 totalGames = totalGames + md.getGames();
                 totalSamai = totalSamai + md.getSamai();
                 //指定秒待機
                 Thread.sleep(DGConst.SLEEPTIME);
             }
-            log.info("トータル差枚:" + totalSamai + "  トータルゲーム数:" + totalGames);
+            log.info("トータル差枚:{}  トータルゲーム数:{}", totalSamai, totalGames);
 
         }catch(DataGetterException e){
             throw e;
         }catch(Exception e){
-            log.error("予期せぬエラーが発生しました",e);
+            log.error("予期せぬエラーが発生しました", e);
             throw e;
         }
     }
@@ -145,7 +148,7 @@ public class DataGetterBusiness {
             }
 
         } catch (IOException e) {
-            log.error("ファイル作成処理失敗");
+            log.error("ファイル作成処理失敗 ディレクトリパス:{}", dirPath);
             throw new DataGetterException();
         }
     }
@@ -162,7 +165,7 @@ public class DataGetterBusiness {
                 FileUtils.forceDelete(gomi);
             }
         } catch (IOException e) {
-            log.error("ファイル削除処理失敗");
+            log.error("ファイル削除処理失敗 ディレクトリパス:{}", dirPath);
             throw new DataGetterException();
         }
     }
@@ -283,12 +286,15 @@ public class DataGetterBusiness {
      * グラフ画像を読み取り座標を取得
      * @param graphPicPath スランプグラフファイルパス
      * @throws DataGetterException 例外
+     * @return samai 差枚
      */
     private int readGraph(final String graphPicPath) throws DataGetterException{
 
         BufferedImage readGraph = null;
         int height = 0;
         int width = 0;
+        int color = 0;
+        int samai = 0;
         try{
             //画像ファイル読み込み
             File graphPic = new File(graphPicPath);
@@ -301,17 +307,20 @@ public class DataGetterBusiness {
                 throw new IOException("ファイルの形式が不正です");
             }
 
+            outside:
             for(int x = DGConst.HEITEN_PX;x > 0 ;x--){
                 for(int y = 0;y < height;y++){
+                    color = readGraph.getRGB(x,y);
+                    log.trace("X:{} Y:{} getRGB:{}", x, y , color);
                     //指定した座標の色を取得
-                    if(DGConst.TARGETCOLOR == readGraph.getRGB(x,y)){
-                        y = getSamai(y + 3);
-                        return y;
+                    if(DGConst.TARGETCOLOR == color){
+                        samai = getSamai(y + 3);
+                        break outside;
                     }
                 }
             }
 
-            return 0;
+            return samai;
 
         }catch(IOException e){
             //読み込みもしくはデコードエラー
@@ -330,8 +339,10 @@ public class DataGetterBusiness {
         double pixel;
 
         pixel = y - DGConst.ZERO_PX;
+        log.debug("Pixel:{}", pixel);
         samai = (int)(pixel * DGConst.MEDAL_PX);
         samai = -samai;
+        log.debug("PayOut:{}", samai);
         return samai;
     }
 
@@ -340,17 +351,18 @@ public class DataGetterBusiness {
      * @param MachineData 台データ
      * @throws DataGetterException 例外
      */
-//    private void insertMachineData(final MachineData md) throws DataGetterException{
-//        try {
-//            manjuu.mbg.entity.MachineData insertMd = new manjuu.mbg.entity.MachineData();
-//            insertMd.setSyutokubi(md.getDate());
-//            insertMd.setMachineNo(md.getMachineNo());
-//            insertMd.setMachineName(md.getMachineName());
-//            insertMd.setGames(md.getGames());
-//            insertMd.setPayout(md.getSamai());
-//        } catch (Exception e) {
-//            log.error("台データ登録失敗 -台データ取得日:" + md.getDate()  + "-台番号:" + md.getMachineNo());
-//            throw new DataGetterException();
-//        }
-//    }
+    private void insertMachineData(final MachineData md) throws DataGetterException{
+        try {
+            manjuu.mbg.entity.MachineData insertMd = new manjuu.mbg.entity.MachineData();
+            insertMd.setSyutokubi(md.getDate());
+            insertMd.setMachineNo(md.getMachineNo());
+            insertMd.setMachineName(md.getMachineName());
+            insertMd.setGames(md.getGames());
+            insertMd.setPayout(md.getSamai());
+            mapper.insert(insertMd);
+        } catch (Exception e) {
+            log.error("台データ登録失敗 -台データ取得日:{} -台番号:{}", md.getDate(), md.getMachineNo());
+            throw new DataGetterException();
+        }
+    }
 }

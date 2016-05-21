@@ -1,6 +1,5 @@
 package manjuu.common;
 
-import java.util.ResourceBundle;
 
 public class Property {
 
@@ -14,7 +13,7 @@ public class Property {
      * @throws DataGetterException 例外
      */
     public void load() throws DataGetterException{
-            ResourceBundle rb = ResourceBundle.getBundle("resource.properties");
-            rb.getKeys();
+            //ResourceBundle rb = ResourceBundle.getBundle("resource.properties");
+            //rb.getKeys();
     }
 }
