@@ -72,16 +72,16 @@ public class DataGetterBusiness {
         // スリープ時間
         int sleeptime = Integer.parseInt(prop.getSleeptime());
 
-        //インスタンス化
+        // インスタンス化
         ArrayList<String> machineList = new ArrayList<String>();
         md = new manjuu.common.MachineData();
 
         try{
-            //必須ディレクトリ作成処理呼び出し処理
+            // 必須ディレクトリ作成処理呼び出し処理
             createDir(slotDir);
             createDir(pachiDir);
 
-            //日付取得(フォーマット:yyyy-mm-dd)
+            // 日付取得(フォーマット:yyyy-mm-dd)
             Calendar cal = Calendar.getInstance();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date strDate = sdf.parse(sdf.format(cal.getTime()));
@@ -89,45 +89,72 @@ public class DataGetterBusiness {
             //日付のセット
             md.setDate(strDate);
 
-            //リストファイル取得
+            // StringBuilder
+            StringBuilder buf = new StringBuilder();
+
+            // リストファイル取得
             log.info("指定した機種リストを読み込みます");
             getMachineList(machineList);
 
-            //台数分ループ処理
+            // 台数分ループ処理
             for (String number : machineList) {
                 log.debug("MachineNumber:{}", number);
 
-                //台データ格納ディレクトリ作成処理
-                createDir(slotDir + number);
-                //ゴミファイル削除処理
-                deleteFile(slotDir + number + "/tmp.html");
-                deleteFile(slotDir + number + "/tmp.png");
-                //台データのHTMLページダウンロード処理
-                download(hallurl + number, slotDir + number + "/" + "tmp.html");
+                // 台データ格納ディレクトリ作成処理
+                buf.append(slotDir);
+                buf.append(number);
+                createDir(buf.toString());
+                buf.setLength(0);
+
+                // ゴミファイル削除処理
+                buf.append(slotDir);
+                buf.append(number);
+                buf.append("/tmp.html");
+                String machineHtml = buf.toString();
+                buf.setLength(0);
+                deleteFile(machineHtml);
+                buf.append(slotDir);
+                buf.append(number);
+                buf.append("/tmp.png");
+                String machineGraphPath = buf.toString();
+                buf.setLength(0);
+                deleteFile(machineGraphPath);
+
+                // 台データのHTMLページダウンロード処理
+                buf.append(hallurl);
+                buf.append(number);
+                String machineUrl = buf.toString();
+                buf.setLength(0);
+                download(machineUrl, machineHtml);
                 // cleanerの生成
                 HtmlCleaner cleaner = new HtmlCleaner();
 
-                //HTML page root node
-                TagNode node = cleaner.clean(new File("/DataGetter/SlotMachines/" + number + "/tmp.html"), "UTF-8");
+                // HTML page root node
+                TagNode node = cleaner.clean(new File(machineHtml), "UTF-8");
                 htmlparse = new HtmlParser(node);
                 graphUrl = htmlparse.getGraph(number);
-                //グラフ画像ダウンロード処理
-                download(graphUrl, slotDir + number + "/" + "tmp.png");
-                //台番号
+
+                // グラフ画像ダウンロード処理
+                download(graphUrl, machineGraphPath);
+
+                // 台番号
                 md.setMachineNo(number);
-                //機種名取得
+                // 機種名取得
                 md.setMachineName(htmlparse.getName(number));
-                //差枚取得処理
-                md.setSamai(readGraph(slotDir + number + "/tmp.png"));
-                //ゲーム数取得処理
+                // 差枚取得処理
+                md.setSamai(readGraph(machineGraphPath));
+                // ゲーム数取得処理
                 md.setGames(Integer.parseInt(htmlparse.getGames(number)));
+
+                // 台データログ出力
                 log.info("台番号:{} 機種名:{} ゲーム数:{} 差枚:{}",
                         md.getMachineNo(), md.getMachineName(), md.getGames(), md.getSamai());
+                // 台データ登録
                 insertMachineData(md);
-                //トータル差枚数計算
+                // トータル差枚数計算
                 totalGames = totalGames + md.getGames();
                 totalSamai = totalSamai + md.getSamai();
-                //指定秒待機
+                // 指定秒待機
                 Thread.sleep(sleeptime);
             }
             log.info("トータル差枚:{}  トータルゲーム数:{}", totalSamai, totalGames);
@@ -187,18 +214,18 @@ public class DataGetterBusiness {
         InputStream in = null;
         FileOutputStream out = null;
 
-        //保存先指定
+        // 保存先指定
         File saveFile = new File(saveFilePath);
         try {
-            //ダウンロードするURLを指定
+            // ダウンロードするURLを指定
             URL url = new URL(htmlURL);
             URLConnection con = url.openConnection();
 
-            //ストリーム
+            // ストリーム
             in = con.getInputStream();
             out = new FileOutputStream(saveFile, false);
 
-            //データ書き込み
+            // データ書き込み
             byte[] b = new byte[4096];
             int readByte = 0;
 
@@ -211,7 +238,7 @@ public class DataGetterBusiness {
             throw new DataGetterException(e);
         }finally{
             try{
-                //クローズ処理
+                // クローズ処理
                 if(out != null){
                     out.close();
                 }
@@ -249,16 +276,16 @@ public class DataGetterBusiness {
 
             br = new BufferedReader(new FileReader(listFile));
 
-            //最終行まで読み込む
+            // 最終行まで読み込む
             String line = "";
             while ((line = br.readLine()) != null) {
 
-                //1行をデータの要素に分割
+                // 1行をデータの要素に分割
                 StringTokenizer st = new StringTokenizer(line, ",");
 
                 while (st.hasMoreTokens()) {
-                    //1行の各要素をタブ区切りで格納
-                    //0埋めを行う
+                    // 1行の各要素をタブ区切りで格納
+                    // 0埋めを行う
                     machineList.add(trimLeftZero(st.nextToken()));
                 }
             }
@@ -314,13 +341,13 @@ public class DataGetterBusiness {
         int targetColor = Integer.parseInt(prop.getGraph_color());
 
         try{
-            //画像ファイル読み込み
+            // 画像ファイル読み込み
             File graphPic = new File(graphPicPath);
             readGraph = ImageIO.read(graphPic);
-            //画像の大きさ取得
+            // 画像の大きさ取得
             height = readGraph.getHeight();
             width = readGraph.getWidth();
-            //画像サイズが正しいかチェック
+            // 画像サイズが正しいかチェック
             if(heightchk != height || widthachk != width){
                 throw new IOException("ファイルの形式が不正です");
             }
@@ -330,7 +357,7 @@ public class DataGetterBusiness {
                 for(int y = 0;y < height;y++){
                     color = readGraph.getRGB(x,y);
                     log.trace("X:{} Y:{} getRGB:{}", x, y , color);
-                    //指定した座標の色を取得
+                    // 指定した座標の色を取得
                     if(targetColor == color){
                         samai = getSamai(y + 2);
                         break outside;
@@ -341,7 +368,7 @@ public class DataGetterBusiness {
             return samai;
 
         }catch(IOException e){
-            //読み込みもしくはデコードエラー
+            // 読み込みもしくはデコードエラー
             log.error("スランプグラフデータ読み込み失敗", e);
             throw new DataGetterException();
         }
