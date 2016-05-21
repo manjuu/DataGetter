@@ -18,10 +18,10 @@ import java.util.StringTokenizer;
 
 import javax.imageio.ImageIO;
 
-import manjuu.common.DGConst;
 import manjuu.common.DataGetterException;
 import manjuu.common.HtmlParser;
 import manjuu.common.MachineData;
+import manjuu.common.Property;
 import manjuu.mbg.mapper.MachineDataMapper;
 
 import org.apache.commons.io.FileUtils;
@@ -39,23 +39,38 @@ public class DataGetterBusiness {
     private Logger log = LogManager.getLogger();
 
     /**
-     * mapper
+     * Mapper
      */
      @Autowired
       private MachineDataMapper mapper;
+
+     /**
+      * プロパティ
+      */
+     @Autowired
+     private Property prop;
 
     /**
      * メイン処理実行
      * @throws Exception 例外
      */
     public void execute() throws Exception{
-        //変数初期化
+        // 変数初期化
         int totalGames = 0;
         int totalSamai = 0;
         manjuu.common.MachineData md = null;
         String graphUrl = null;
         HtmlParser htmlparse = null;
-        StringBuilder buf = new StringBuilder();
+
+        // プロパティファイル値取得
+        // ホールURL
+        String hallurl = prop.getHall_url();
+        // スロットディレクトリ
+        String slotDir = prop.getSlot_dir();
+        // パチンコディレクトリ
+        String pachiDir = prop.getPachi_dir();
+        // スリープ時間
+        int sleeptime = Integer.parseInt(prop.getSleeptime());
 
         //インスタンス化
         ArrayList<String> machineList = new ArrayList<String>();
@@ -63,8 +78,8 @@ public class DataGetterBusiness {
 
         try{
             //必須ディレクトリ作成処理呼び出し処理
-            createDir(DGConst.REQ_S_DIR);
-            createDir(DGConst.REQ_P_DIR);
+            createDir(slotDir);
+            createDir(pachiDir);
 
             //日付取得(フォーマット:yyyy-mm-dd)
             Calendar cal = Calendar.getInstance();
@@ -83,45 +98,37 @@ public class DataGetterBusiness {
                 log.debug("MachineNumber:{}", number);
 
                 //台データ格納ディレクトリ作成処理
-                createDir(DGConst.REQ_S_DIR + number);
+                createDir(slotDir + number);
                 //ゴミファイル削除処理
-                deleteFile(DGConst.REQ_S_DIR + number + "/tmp.html");
-                deleteFile(DGConst.REQ_S_DIR + number + "/tmp.png");
+                deleteFile(slotDir + number + "/tmp.html");
+                deleteFile(slotDir + number + "/tmp.png");
                 //台データのHTMLページダウンロード処理
-                download(DGConst.TARGET_URL + number, DGConst.REQ_S_DIR + number + "/" + "tmp.html");
+                download(hallurl + number, slotDir + number + "/" + "tmp.html");
                 // cleanerの生成
                 HtmlCleaner cleaner = new HtmlCleaner();
-                //CleanerProperties props = cleaner.getProperties();
 
                 //HTML page root node
                 TagNode node = cleaner.clean(new File("/DataGetter/SlotMachines/" + number + "/tmp.html"), "UTF-8");
                 htmlparse = new HtmlParser(node);
                 graphUrl = htmlparse.getGraph(number);
                 //グラフ画像ダウンロード処理
-                download(graphUrl, DGConst.REQ_S_DIR  + number + "/" + "tmp.png");
+                download(graphUrl, slotDir + number + "/" + "tmp.png");
                 //台番号
                 md.setMachineNo(number);
                 //機種名取得
                 md.setMachineName(htmlparse.getName(number));
                 //差枚取得処理
-                md.setSamai(readGraph(DGConst.REQ_S_DIR + number + "/tmp.png"));
+                md.setSamai(readGraph(slotDir + number + "/tmp.png"));
                 //ゲーム数取得処理
                 md.setGames(Integer.parseInt(htmlparse.getGames(number)));
-                buf.append("台番号:");
-                buf.append(md.getMachineNo());
-                buf.append(" 機種名:");
-                buf.append(md.getMachineName());
-                buf.append(" ゲーム数:");
-                buf.append(md.getGames());
-                buf.append(" 差枚:");
-                buf.append(md.getSamai());
-                log.info(buf.toString());
+                log.info("台番号:{} 機種名:{} ゲーム数:{} 差枚:{}",
+                        md.getMachineNo(), md.getMachineName(), md.getGames(), md.getSamai());
                 insertMachineData(md);
                 //トータル差枚数計算
                 totalGames = totalGames + md.getGames();
                 totalSamai = totalSamai + md.getSamai();
                 //指定秒待機
-                Thread.sleep(DGConst.SLEEPTIME);
+                Thread.sleep(sleeptime);
             }
             log.info("トータル差枚:{}  トータルゲーム数:{}", totalSamai, totalGames);
 
@@ -138,15 +145,13 @@ public class DataGetterBusiness {
      * @param dirPath ディレクトリパス
      * @throws DataGetterException 例外
      */
-    private void createDir(final String dirPath) throws DataGetterException{
+    private void createDir(final String dirPath) throws DataGetterException {
 
         try {
-
             File dir = new File(dirPath);
             if(!dir.exists()){
                 FileUtils.forceMkdir(dir);
             }
-
         } catch (IOException e) {
             log.error("ファイル作成処理失敗 ディレクトリパス:{}", dirPath);
             throw new DataGetterException();
@@ -158,7 +163,8 @@ public class DataGetterBusiness {
      * @param dirPath ディレクトリパス
      * @throws DataGetterException 例外
      */
-    private void deleteFile(final String dirPath) throws DataGetterException{
+    private void deleteFile(final String dirPath) throws DataGetterException {
+
         File gomi = new File(dirPath);
         try {
             if(gomi.exists()){
@@ -176,7 +182,7 @@ public class DataGetterBusiness {
      * @param saveFilePath 保存先
      * @throws DataGetterException 例外
      */
-    private void download(final String htmlURL, final String saveFilePath) throws DataGetterException{
+    private void download(final String htmlURL, final String saveFilePath) throws DataGetterException {
 
         InputStream in = null;
         FileOutputStream out = null;
@@ -224,13 +230,14 @@ public class DataGetterBusiness {
      * @param machineList 台リスト
      * @throws DataGetterException 例外
      */
-    private void getMachineList(final ArrayList<String> machineList) throws DataGetterException{
+    private void getMachineList(final ArrayList<String> machineList) throws DataGetterException {
 
         BufferedReader br = null;
 
         try {
-            //String listFile = fo.getPath();
-            String listFile = DGConst.LIST;
+            // 設定ファイル値取得
+            // 台番号リストファイルパス
+            String listFile = prop.getList_file_path();
 
             if(listFile == null){
                 log.error("リストファイル取得に失敗しました");
@@ -295,6 +302,17 @@ public class DataGetterBusiness {
         int width = 0;
         int color = 0;
         int samai = 0;
+
+        // プロパティファイル値取得
+        // 高さチェック値
+        int heightchk = Integer.parseInt(prop.getHeight());
+        // 幅チェック値
+        int widthachk = Integer.parseInt(prop.getWidth());
+        // 閉店座標
+        int closedPx = Integer.parseInt(prop.getClosed_px());
+        // ターゲット色
+        int targetColor = Integer.parseInt(prop.getGraph_color());
+
         try{
             //画像ファイル読み込み
             File graphPic = new File(graphPicPath);
@@ -303,18 +321,18 @@ public class DataGetterBusiness {
             height = readGraph.getHeight();
             width = readGraph.getWidth();
             //画像サイズが正しいかチェック
-            if(DGConst.HEIGHT != height || DGConst.WIDTH != width){
+            if(heightchk != height || widthachk != width){
                 throw new IOException("ファイルの形式が不正です");
             }
 
             outside:
-            for(int x = DGConst.HEITEN_PX;x > 0 ;x--){
+            for(int x = closedPx;x > 0 ;x--){
                 for(int y = 0;y < height;y++){
                     color = readGraph.getRGB(x,y);
                     log.trace("X:{} Y:{} getRGB:{}", x, y , color);
                     //指定した座標の色を取得
-                    if(DGConst.TARGETCOLOR == color){
-                        samai = getSamai(y + 3);
+                    if(targetColor == color){
+                        samai = getSamai(y + 2);
                         break outside;
                     }
                 }
@@ -338,9 +356,15 @@ public class DataGetterBusiness {
         int samai;
         double pixel;
 
-        pixel = y - DGConst.ZERO_PX;
+        // 設定ファイル値取得
+        // 差枚0Y座標
+        int zeroPx = Integer.parseInt(prop.getZero_px());
+        // 1PXあたりのメダル
+        int medalOnePx = Integer.parseInt(prop.getMedal_px());
+
+        pixel = y - zeroPx;
         log.debug("Pixel:{}", pixel);
-        samai = (int)(pixel * DGConst.MEDAL_PX);
+        samai = (int)(pixel * medalOnePx);
         samai = -samai;
         log.debug("PayOut:{}", samai);
         return samai;

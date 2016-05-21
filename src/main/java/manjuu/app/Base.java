@@ -2,8 +2,6 @@ package manjuu.app;
 
 import java.util.Arrays;
 
-import manjuu.common.Property;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,9 +31,6 @@ abstract class Base {
         try {
             // 引数チェック
             checkArgs(args);
-            // 設定ファイルの読み込み
-            Property prop = new Property();
-            prop.load();
             // ビジネスクラスの実行
             execute();
         } catch (Exception e) {
