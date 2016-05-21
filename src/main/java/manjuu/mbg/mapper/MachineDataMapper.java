@@ -1,8 +1,10 @@
-package manjuu.model.mapper;
+package manjuu.mbg.mapper;
 
 import java.util.List;
-import manjuu.model.entity.MachineData;
-import manjuu.model.entity.MachineDataExample;
+
+import manjuu.mbg.entity.MachineData;
+import manjuu.mbg.entity.MachineDataExample;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface MachineDataMapper {

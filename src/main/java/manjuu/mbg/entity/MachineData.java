@@ -1,4 +1,4 @@
-package manjuu.model.entity;
+package manjuu.mbg.entity;
 
 import java.util.Date;
 

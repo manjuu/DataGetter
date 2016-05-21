@@ -1,8 +1,10 @@
 package manjuu.common;
 
+import java.util.Date;
+
 public class MachineData {
 
-    private String date;
+    private Date date;
 
     private String machineNo;
 
@@ -20,11 +22,11 @@ public class MachineData {
 
     int samai;
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(final String date) {
+    public void setDate(final Date date) {
         this.date = date;
     }
 

@@ -13,6 +13,7 @@ import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.StringTokenizer;
 
 import javax.imageio.ImageIO;
@@ -21,7 +22,6 @@ import manjuu.common.DGConst;
 import manjuu.common.Dao;
 import manjuu.common.DataGetterException;
 import manjuu.common.HtmlParser;
-import manjuu.common.MachineData;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
@@ -51,14 +51,14 @@ public class DataGetterBusiness {
         //変数初期化
         int totalGames = 0;
         int totalSamai = 0;
-        MachineData md = null;
+        manjuu.common.MachineData md = null;
         String graphUrl = null;
         HtmlParser htmlparse = null;
         StringBuilder buf = new StringBuilder();
 
         //インスタンス化
         ArrayList<String> machineList = new ArrayList<String>();
-        md = new MachineData();
+        md = new manjuu.common.MachineData();
 
         try{
             //必須ディレクトリ作成処理呼び出し処理
@@ -68,7 +68,7 @@ public class DataGetterBusiness {
             //日付取得(フォーマット:yyyy-mm-dd)
             Calendar cal = Calendar.getInstance();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String strDate = sdf.format(cal.getTime());
+            Date strDate = sdf.parse(sdf.format(cal.getTime()));
 
             //日付のセット
             md.setDate(strDate);
@@ -284,7 +284,7 @@ public class DataGetterBusiness {
      * @param graphPicPath スランプグラフファイルパス
      * @throws DataGetterException 例外
      */
-    private int readGraph(String graphPicPath) throws DataGetterException{
+    private int readGraph(final String graphPicPath) throws DataGetterException{
 
         BufferedImage readGraph = null;
         int height = 0;
@@ -325,7 +325,7 @@ public class DataGetterBusiness {
      * @param y 取得座標
      * @return saimai 差枚
      */
-    private int getSamai(int y){
+    private int getSamai(final int y){
         int samai;
         double pixel;
 
@@ -334,4 +334,23 @@ public class DataGetterBusiness {
         samai = -samai;
         return samai;
     }
+
+    /**
+     * 台データ登録処理
+     * @param MachineData 台データ
+     * @throws DataGetterException 例外
+     */
+//    private void insertMachineData(final MachineData md) throws DataGetterException{
+//        try {
+//            manjuu.mbg.entity.MachineData insertMd = new manjuu.mbg.entity.MachineData();
+//            insertMd.setSyutokubi(md.getDate());
+//            insertMd.setMachineNo(md.getMachineNo());
+//            insertMd.setMachineName(md.getMachineName());
+//            insertMd.setGames(md.getGames());
+//            insertMd.setPayout(md.getSamai());
+//        } catch (Exception e) {
+//            log.error("台データ登録失敗 -台データ取得日:" + md.getDate()  + "-台番号:" + md.getMachineNo());
+//            throw new DataGetterException();
+//        }
+//    }
 }
