@@ -412,7 +412,7 @@ public class DataGetterBusiness {
             insertMd.setPayout(md.getSamai());
             mapper.insert(insertMd);
         } catch (Exception e) {
-            log.error("台データ登録失敗 -台データ取得日:{} -台番号:{}", md.getDate(), md.getMachineNo());
+            log.error("台データ登録失敗 -台データ取得日:{} -台番号:{}", md.getDate(), md.getMachineNo(), e);
             throw new DataGetterException();
         }
     }
