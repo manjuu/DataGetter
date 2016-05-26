@@ -45,7 +45,7 @@ public class DataGetterBusiness {
       private MachineDataMapper mapper;
 
      /**
-      * プロパティ
+      * Property
       */
      @Autowired
      private Property prop;
@@ -54,7 +54,7 @@ public class DataGetterBusiness {
      * メイン処理実行
      * @throws Exception 例外
      */
-    public void execute() throws Exception{
+    public void execute() throws Exception {
         // 変数初期化
         int totalGames = 0;
         int totalSamai = 0;
@@ -144,7 +144,7 @@ public class DataGetterBusiness {
                 // 差枚取得処理
                 md.setSamai(readGraph(machineGraphPath));
                 // ゲーム数取得処理
-                md.setGames(Integer.parseInt(htmlparse.getGames(number)));
+                md.setGames(htmlparse.getGames(number));
 
                 // 台データログ出力
                 log.info("台番号:{} 機種名:{} ゲーム数:{} 差枚:{}",
@@ -159,9 +159,9 @@ public class DataGetterBusiness {
             }
             log.info("トータル差枚:{}  トータルゲーム数:{}", totalSamai, totalGames);
 
-        }catch(DataGetterException e){
+        } catch(DataGetterException e) {
             throw e;
-        }catch(Exception e){
+        } catch(Exception e) {
             log.error("予期せぬエラーが発生しました", e);
             throw e;
         }
@@ -176,7 +176,7 @@ public class DataGetterBusiness {
 
         try {
             File dir = new File(dirPath);
-            if(!dir.exists()){
+            if(!dir.exists()) {
                 FileUtils.forceMkdir(dir);
             }
         } catch (IOException e) {
@@ -229,7 +229,7 @@ public class DataGetterBusiness {
             byte[] b = new byte[4096];
             int readByte = 0;
 
-            while(-1 != (readByte = in.read(b))){
+            while(-1 != (readByte = in.read(b))) {
                 out.write(b, 0, readByte);
             }
 
@@ -239,13 +239,13 @@ public class DataGetterBusiness {
         }finally{
             try{
                 // クローズ処理
-                if(out != null){
+                if(out != null) {
                     out.close();
                 }
-                if(in != null){
+                if(in != null) {
                     in.close();
                 }
-            }catch(IOException e){
+            }catch(IOException e) {
                 log.error("ストリームのクローズに失敗しました");
                 throw new DataGetterException(e);
             }
@@ -285,8 +285,7 @@ public class DataGetterBusiness {
 
                 while (st.hasMoreTokens()) {
                     // 1行の各要素をタブ区切りで格納
-                    // 0埋めを行う
-                    machineList.add(trimLeftZero(st.nextToken()));
+                    machineList.add(st.nextToken().replaceFirst("^0+", ""));
                 }
             }
         } catch (FileNotFoundException e) {
@@ -302,18 +301,9 @@ public class DataGetterBusiness {
                     br.close();
                 }
             } catch (Exception e) {
-                log.error("クローズ処理失敗");
+                log.error("クローズ処理失敗", e);
             }
         }
-    }
-
-    /**
-     * 先頭の0を削除する処理
-     * @param str 処理文字列
-     * @return トリミング文字列
-     */
-    private String trimLeftZero(final String str) {
-        return str.replaceFirst("^0+", "");
     }
 
     /**
@@ -379,7 +369,7 @@ public class DataGetterBusiness {
      * @param y 取得座標
      * @return saimai 差枚
      */
-    private int getSamai(final int y){
+    private int getSamai(final int y) {
         int samai;
         double pixel;
 
@@ -405,7 +395,7 @@ public class DataGetterBusiness {
     private void insertMachineData(final MachineData md) throws DataGetterException{
         try {
             manjuu.mbg.entity.MachineData insertMd = new manjuu.mbg.entity.MachineData();
-            insertMd.setSyutokubi(md.getDate());
+            insertMd.setAcquisitionDate(md.getDate());
             insertMd.setMachineNo(md.getMachineNo());
             insertMd.setMachineName(md.getMachineName());
             insertMd.setGames(md.getGames());

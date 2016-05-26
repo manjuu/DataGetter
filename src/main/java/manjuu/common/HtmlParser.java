@@ -91,9 +91,9 @@ public class HtmlParser {
      * @return games 総スタート
      * @throws DataGetterException
      */
-    public String getGames(final String number) throws DataGetterException{
+    public int getGames(final String number) throws DataGetterException{
 
-        String games = null;
+        int games = 0;
         int i = 0;
         try{
 
@@ -114,7 +114,7 @@ public class HtmlParser {
             Object[] info_nodes = root.evaluateXPath("//tbody[1]/tr[1]/td[" + i + "]/text()");
 
             if (info_nodes.length > 0) {
-                games = info_nodes[0].toString().replace(",","");
+                games = Integer.parseInt(info_nodes[0].toString().replace(",",""));
                 log.debug("Games:{}", games);
             } else {
                 log.error("総スタート数取得に失敗");

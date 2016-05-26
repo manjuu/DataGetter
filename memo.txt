@@ -1,2 +1,8 @@
 DB
 root/252521
+
+jarパッケージ作成ゴール
+package assembly:assembly
+
+mybatis generatorゴール
+mybatis-generator:generate

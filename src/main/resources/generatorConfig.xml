@@ -19,11 +19,11 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!-- Modelの格納先 targetProjectはsrc\main\javaまでを指定（それ以降のディレクトリはtargetPackageにより自動生成される。）-->
-        <javaModelGenerator targetPackage="manjuu.mbg.entity" targetProject="D:\Eclipse\workspace\DataGetter\src\main\java" />
+        <javaModelGenerator targetPackage="manjuu.mbg.entity" targetProject="D:\Projects\Java\workspace\DataGetter\src\main\java" />
         <!-- sqlMap（XML）の格納先 -->
-      <sqlMapGenerator targetPackage="manjuu.mbg.mapper" targetProject="D:\Eclipse\workspace\DataGetter\src\main\java" />
+      <sqlMapGenerator targetPackage="manjuu.mbg.mapper" targetProject="D:\Projects\Java\workspace\DataGetter\src\main\java" />
         <!--DAO（Mapper）の格納先-->
-      <javaClientGenerator targetPackage="manjuu.mbg.mapper" targetProject="D:\Eclipse\workspace\DataGetter\src\main\java" type="XMLMAPPER" />
+      <javaClientGenerator targetPackage="manjuu.mbg.mapper" targetProject="D:\Projects\Java\workspace\DataGetter\src\main\java" type="XMLMAPPER" />
         <!-- テーブル指定　ワイルドカード（%）OK -->
       <table schema="DataGetter"
             tableName="%"
