@@ -126,10 +126,10 @@ public class DataGetterBusiness {
                 String machineUrl = buf.toString();
                 buf.setLength(0);
                 download(machineUrl, machineHtml);
-                // cleanerの生成
+                // cleaner
                 HtmlCleaner cleaner = new HtmlCleaner();
 
-                // HTML page root node
+                // HTMLノード取得
                 TagNode node = cleaner.clean(new File(machineHtml), "UTF-8");
                 htmlparse = new HtmlParser(node);
                 graphUrl = htmlparse.getGraph(number);

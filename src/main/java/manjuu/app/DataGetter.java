@@ -24,14 +24,14 @@ public class DataGetter extends Base {
      */
     DataGetter() {
         super();
-        super.commandName = DGConst.DATAGETTER;;
+        super.COMMAND_NAME = DGConst.DATAGETTER;;
     }
 
     /**
      * データゲッタメイン処理
      * @param args 引数
      */
-    public static void main(String[]args){
+    public static void main(final String[]args){
         int exitcode = new DataGetter().load(args);
         //プログラム終了 終了値:exitcode
         System.exit(exitcode);
@@ -51,6 +51,6 @@ public class DataGetter extends Base {
     /**
      * 引数チェック
      */
-    protected void checkArgs(String[]args){
+    protected void checkArgs(final String[]args){
     }
 }

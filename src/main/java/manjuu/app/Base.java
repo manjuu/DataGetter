@@ -15,18 +15,22 @@ abstract class Base {
     /**
      * コマンド名
      */
-    String commandName = null;
+    protected String COMMAND_NAME = null;
+
+    private final int NORMAL_CODE = 0;
+
+    private final int ERROR_CODE = 9;
 
     /**
      * ベース処理
      * @param args 引数
      * @return 終了コード
      */
-    protected int load (String[]args) {
+    protected int load (final String[]args) {
 
-        log.info("{} -start- {}", commandName, Arrays.asList(args));
+        log.info("{} -start- {}", COMMAND_NAME, Arrays.asList(args));
 
-        int exitcode = 0;
+        int exitcode = NORMAL_CODE;
 
         try {
             // 引数チェック
@@ -34,15 +38,15 @@ abstract class Base {
             // ビジネスクラスの実行
             execute();
         } catch (Exception e) {
-            exitcode = 9;
+            exitcode = ERROR_CODE;
         }
 
-        log.info("{} -end- exitcode:{}", commandName, exitcode);
+        log.info("{} -end- exitcode:{}", COMMAND_NAME, exitcode);
 
         return exitcode;
     }
 
-    protected abstract void checkArgs(String[]args);
+    protected abstract void checkArgs(final String[]args);
 
     protected abstract void execute() throws Exception;
 }
