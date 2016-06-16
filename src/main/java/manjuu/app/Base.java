@@ -36,7 +36,7 @@ abstract class Base {
             // 引数チェック
             checkArgs(args);
             // ビジネスクラスの実行
-            execute();
+            execute(args);
         } catch (Exception e) {
             exitcode = ERROR_CODE;
         }
@@ -48,5 +48,5 @@ abstract class Base {
 
     protected abstract void checkArgs(final String[]args);
 
-    protected abstract void execute() throws Exception;
+    protected abstract void execute(final String[]args) throws Exception;
 }

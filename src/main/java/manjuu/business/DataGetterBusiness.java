@@ -50,17 +50,25 @@ public class DataGetterBusiness {
      @Autowired
      private Property prop;
 
+     /**
+      * HALL_ID
+      */
+     private String hallId;
+
     /**
      * メイン処理実行
      * @throws Exception 例外
      */
-    public void execute() throws Exception {
+    public void execute(final String[]args) throws Exception {
         // 変数初期化
         int totalGames = 0;
         int totalSamai = 0;
         manjuu.common.MachineData md = null;
         String graphUrl = null;
         HtmlParser htmlparse = null;
+
+        // ホールID
+        hallId = args[0];
 
         // プロパティファイル値取得
         // ホールURL
@@ -395,6 +403,7 @@ public class DataGetterBusiness {
     private void insertMachineData(final MachineData md) throws DataGetterException{
         try {
             manjuu.mbg.entity.MachineData insertMd = new manjuu.mbg.entity.MachineData();
+            insertMd.setHallId(hallId);
             insertMd.setAcquisitionDate(md.getDate());
             insertMd.setMachineNo(md.getMachineNo());
             insertMd.setMachineName(md.getMachineName());

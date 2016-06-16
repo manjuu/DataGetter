@@ -41,11 +41,11 @@ public class DataGetter extends Base {
      * beanの実行
      * @throws Exception 例外
      */
-    protected void execute() throws Exception{
+    protected void execute(final String[]args) throws Exception{
         DataGetterBusiness bean =
                 (DataGetterBusiness) context.getBean("DataGetterBusiness");
 
-        bean.execute();
+        bean.execute(args);
     }
 
     /**

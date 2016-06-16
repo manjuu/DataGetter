@@ -17,7 +17,7 @@
   </Appenders>
 
   <Loggers>
-    <Root level="debug">
+    <Root level="info">
       <!-- 出力先指定 -->
       <AppenderRef ref="rolling"/>
     </Root>
