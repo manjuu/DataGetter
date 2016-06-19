@@ -167,9 +167,9 @@ public class DataGetterBusiness {
             }
             log.info("トータル差枚:{}  トータルゲーム数:{}", totalSamai, totalGames);
 
-        } catch(DataGetterException e) {
+        } catch (DataGetterException e) {
             throw e;
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("予期せぬエラーが発生しました", e);
             throw e;
         }
@@ -244,7 +244,7 @@ public class DataGetterBusiness {
         } catch (Exception e) {
             log.error("ファイルのダウンロードに失敗しました");
             throw new DataGetterException(e);
-        }finally{
+        } finally {
             try{
                 // クローズ処理
                 if(out != null) {
@@ -253,7 +253,7 @@ public class DataGetterBusiness {
                 if(in != null) {
                     in.close();
                 }
-            }catch(IOException e) {
+            } catch (IOException e) {
                 log.error("ストリームのクローズに失敗しました");
                 throw new DataGetterException(e);
             }
@@ -323,9 +323,6 @@ public class DataGetterBusiness {
     private int readGraph(final String graphPicPath) throws DataGetterException{
 
         BufferedImage readGraph = null;
-        int height = 0;
-        int width = 0;
-        int color = 0;
         int samai = 0;
 
         // プロパティファイル値取得
@@ -339,12 +336,13 @@ public class DataGetterBusiness {
         int targetColor = Integer.parseInt(prop.getGraph_color());
 
         try{
+            int color = 0;
             // 画像ファイル読み込み
             File graphPic = new File(graphPicPath);
             readGraph = ImageIO.read(graphPic);
             // 画像の大きさ取得
-            height = readGraph.getHeight();
-            width = readGraph.getWidth();
+            int height = readGraph.getHeight();
+            int width = readGraph.getWidth();
             // 画像サイズが正しいかチェック
             if(heightchk != height || widthachk != width){
                 throw new IOException("ファイルの形式が不正です");

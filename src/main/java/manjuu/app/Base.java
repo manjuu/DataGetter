@@ -1,5 +1,6 @@
 package manjuu.app;
 
+import java.security.InvalidParameterException;
 import java.util.Arrays;
 
 import org.apache.logging.log4j.LogManager;
@@ -37,6 +38,9 @@ abstract class Base {
             checkArgs(args);
             // ビジネスクラスの実行
             execute(args);
+        } catch (InvalidParameterException e) {
+            log.error("パラメータ不正 詳細:{}", e);
+            exitcode = ERROR_CODE;
         } catch (Exception e) {
             exitcode = ERROR_CODE;
         }

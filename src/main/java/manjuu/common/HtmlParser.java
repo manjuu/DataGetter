@@ -120,9 +120,12 @@ public class HtmlParser {
                 log.error("総スタート数取得に失敗");
                 throw new DataGetterException();
             }
-        }catch(XPatherException e){
+        } catch (XPatherException e) {
             log.error("HTMLファイルの読み込みに失敗", e);
-            throw new DataGetterException(e);
+            throw new DataGetterException();
+        } catch (NumberFormatException e) {
+            log.error("総スタート数取得に失敗", e);
+            throw new DataGetterException();
         }
         return games;
     }

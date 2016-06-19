@@ -5,6 +5,8 @@
  */
 package manjuu.app;
 
+import java.security.InvalidParameterException;
+
 import manjuu.business.DataGetterBusiness;
 import manjuu.common.DGConst;
 
@@ -52,5 +54,14 @@ public class DataGetter extends Base {
      * 引数チェック
      */
     protected void checkArgs(final String[]args){
+
+        try {
+            // ホールID
+            if(args[0] != null) {
+                throw new InvalidParameterException("ホールIDが設定されていません");
+            }
+        } catch (InvalidParameterException e) {
+            throw e;
+        }
     }
 }
