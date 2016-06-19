@@ -57,7 +57,7 @@ public class DataGetter extends Base {
 
         try {
             // ホールID
-            if(args[0] != null) {
+            if(args[0] == null) {
                 throw new InvalidParameterException("ホールIDが設定されていません");
             }
         } catch (InvalidParameterException e) {
