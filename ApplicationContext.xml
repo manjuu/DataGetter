@@ -33,11 +33,19 @@
     </bean>
 
     <!-- Mapperインターフェースの登録 -->
-    <bean id="MachineDataMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-      <property name="mapperInterface" value="manjuu.mbg.mapper.MachineDataMapper" />
+    <bean id="TMachineDataMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+      <property name="mapperInterface" value="manjuu.mbg.mapper.TMachineDataMapper" />
+      <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+    <bean id="MMachineListMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+      <property name="mapperInterface" value="manjuu.mbg.mapper.MMachineListMapper" />
       <property name="sqlSessionFactory" ref="sqlSessionFactory" />
     </bean>
 
 	<bean id="DataGetterBusiness" class="manjuu.business.DataGetterBusiness">
-        </bean>
+    </bean>
+
+	<bean id="DataForAWSBusiness" class="manjuu.business.DataForAWSBusiness">
+    </bean>
+
     </beans>

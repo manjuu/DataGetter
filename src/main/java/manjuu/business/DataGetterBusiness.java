@@ -1,20 +1,16 @@
 package manjuu.business;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.StringTokenizer;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -22,7 +18,11 @@ import manjuu.common.DataGetterException;
 import manjuu.common.HtmlParser;
 import manjuu.common.MachineData;
 import manjuu.common.Property;
-import manjuu.mbg.mapper.MachineDataMapper;
+import manjuu.mbg.entity.MMachineList;
+import manjuu.mbg.entity.MMachineListExample;
+import manjuu.mbg.entity.TMachineData;
+import manjuu.mbg.mapper.MMachineListMapper;
+import manjuu.mbg.mapper.TMachineDataMapper;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
@@ -42,7 +42,9 @@ public class DataGetterBusiness {
      * Mapper
      */
      @Autowired
-      private MachineDataMapper mapper;
+      private TMachineDataMapper mdmapper;
+     @Autowired
+     private MMachineListMapper mlmapper;
 
      /**
       * Property
@@ -51,7 +53,7 @@ public class DataGetterBusiness {
      private Property prop;
 
      /**
-      * HALL_ID
+      * ホールID
       */
      private String hallId;
 
@@ -63,7 +65,7 @@ public class DataGetterBusiness {
         // 変数初期化
         int totalGames = 0;
         int totalSamai = 0;
-        manjuu.common.MachineData md = null;
+        MachineData md = null;
         String graphUrl = null;
         HtmlParser htmlparse = null;
 
@@ -81,8 +83,7 @@ public class DataGetterBusiness {
         int sleeptime = Integer.parseInt(prop.getSleeptime());
 
         // インスタンス化
-        ArrayList<String> machineList = new ArrayList<String>();
-        md = new manjuu.common.MachineData();
+        md = new MachineData();
 
         try{
             // 必須ディレクトリ作成処理呼び出し処理
@@ -100,12 +101,16 @@ public class DataGetterBusiness {
             // StringBuilder
             StringBuilder buf = new StringBuilder();
 
-            // リストファイル取得
-            log.info("指定した機種リストを読み込みます");
-            getMachineList(machineList);
+            // 台リスト取得
+            MMachineListExample where = new MMachineListExample();
+            where.createCriteria()
+                .andHallIdEqualTo(hallId);
+            where.setOrderByClause("MACHINE_ID");
+            List<MMachineList> machineList = mlmapper.selectByExample(where);
 
             // 台数分ループ処理
-            for (String number : machineList) {
+            for (MMachineList list : machineList) {
+                String number = list.getMachineId().toString();
                 log.debug("MachineNumber:{}", number);
 
                 // 台データ格納ディレクトリ作成処理
@@ -242,7 +247,7 @@ public class DataGetterBusiness {
             }
 
         } catch (Exception e) {
-            log.error("ファイルのダウンロードに失敗しました");
+            log.error("ファイルのダウンロードに失敗しました", e);
             throw new DataGetterException(e);
         } finally {
             try{
@@ -254,7 +259,7 @@ public class DataGetterBusiness {
                     in.close();
                 }
             } catch (IOException e) {
-                log.error("ストリームのクローズに失敗しました");
+                log.error("ストリームのクローズに失敗しました", e);
                 throw new DataGetterException(e);
             }
         }
@@ -265,53 +270,8 @@ public class DataGetterBusiness {
      * @param machineList 台リスト
      * @throws DataGetterException 例外
      */
-    private void getMachineList(final ArrayList<String> machineList) throws DataGetterException {
-
-        BufferedReader br = null;
-
-        try {
-            // 設定ファイル値取得
-            // 台番号リストファイルパス
-            String listFile = prop.getList_file_path();
-
-            if(listFile == null){
-                log.error("リストファイル取得に失敗しました");
-                throw new DataGetterException();
-            }
-
-
-            log.info(listFile);
-
-            br = new BufferedReader(new FileReader(listFile));
-
-            // 最終行まで読み込む
-            String line = "";
-            while ((line = br.readLine()) != null) {
-
-                // 1行をデータの要素に分割
-                StringTokenizer st = new StringTokenizer(line, ",");
-
-                while (st.hasMoreTokens()) {
-                    // 1行の各要素をタブ区切りで格納
-                    machineList.add(st.nextToken().replaceFirst("^0+", ""));
-                }
-            }
-        } catch (FileNotFoundException e) {
-            log.error("リストファイルの読み込みに失敗しました");
-            throw new DataGetterException();
-        } catch (IOException e) {
-            log.error("リストファイルの読み込みに失敗しました");
-            throw new DataGetterException();
-        } finally {
-            try{
-                //クローズ処理
-                if(br != null) {
-                    br.close();
-                }
-            } catch (Exception e) {
-                log.error("クローズ処理失敗", e);
-            }
-        }
+    private List<MMachineList> getMachineList() throws DataGetterException {
+        return null;
     }
 
     /**
@@ -320,7 +280,7 @@ public class DataGetterBusiness {
      * @throws DataGetterException 例外
      * @return samai 差枚
      */
-    private int readGraph(final String graphPicPath) throws DataGetterException{
+    private int readGraph(final String graphPicPath) throws DataGetterException {
 
         BufferedImage readGraph = null;
         int samai = 0;
@@ -344,17 +304,17 @@ public class DataGetterBusiness {
             int height = readGraph.getHeight();
             int width = readGraph.getWidth();
             // 画像サイズが正しいかチェック
-            if(heightchk != height || widthachk != width){
+            if(heightchk != height || widthachk != width) {
                 throw new IOException("ファイルの形式が不正です");
             }
 
             outside:
-            for(int x = closedPx;x > 0 ;x--){
-                for(int y = 0;y < height;y++){
+            for(int x = closedPx;x > 0 ;x--) {
+                for(int y = 0;y < height;y++) {
                     color = readGraph.getRGB(x,y);
                     log.trace("X:{} Y:{} getRGB:{}", x, y , color);
                     // 指定した座標の色を取得
-                    if(targetColor == color){
+                    if(targetColor == color) {
                         samai = getSamai(y + 2);
                         break outside;
                     }
@@ -400,14 +360,14 @@ public class DataGetterBusiness {
      */
     private void insertMachineData(final MachineData md) throws DataGetterException{
         try {
-            manjuu.mbg.entity.MachineData insertMd = new manjuu.mbg.entity.MachineData();
+            TMachineData insertMd = new TMachineData();
             insertMd.setHallId(hallId);
             insertMd.setAcquisitionDate(md.getDate());
             insertMd.setMachineNo(md.getMachineNo());
             insertMd.setMachineName(md.getMachineName());
             insertMd.setGames(md.getGames());
             insertMd.setPayout(md.getSamai());
-            mapper.insert(insertMd);
+            mdmapper.insert(insertMd);
         } catch (Exception e) {
             log.error("台データ登録失敗 -台データ取得日:{} -台番号:{}", md.getDate(), md.getMachineNo(), e);
             throw new DataGetterException();

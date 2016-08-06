@@ -6,9 +6,14 @@ public class DGConst {
     }
 
     /**
-     * データゲッター
+     * バッチ名：データゲッター
      */
     public final static String DATAGETTER =  "DataGetter";
+
+    /**
+     * バッチ名：データAWS連携
+     */
+    public final static String DATAFORAWS =  "DataForAWS";
 
     /**
      * ホーム
