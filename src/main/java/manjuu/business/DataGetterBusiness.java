@@ -109,8 +109,8 @@ public class DataGetterBusiness {
             List<MMachineList> machineList = mlmapper.selectByExample(where);
 
             // 台数分ループ処理
-            for (MMachineList list : machineList) {
-                String number = list.getMachineId().toString();
+            for (MMachineList machineData : machineList) {
+                String number = machineData.getMachineId().toString();
                 log.debug("MachineNumber:{}", number);
 
                 // 台データ格納ディレクトリ作成処理
@@ -223,10 +223,6 @@ public class DataGetterBusiness {
      * @throws DataGetterException 例外
      */
     private void download(final String htmlURL, final String saveFilePath) throws DataGetterException {
-
-        InputStream in = null;
-        FileOutputStream out = null;
-
         // 保存先指定
         File saveFile = new File(saveFilePath);
         try {
@@ -234,44 +230,21 @@ public class DataGetterBusiness {
             URL url = new URL(htmlURL);
             URLConnection con = url.openConnection();
 
-            // ストリーム
-            in = con.getInputStream();
-            out = new FileOutputStream(saveFile, false);
+            try (InputStream in = con.getInputStream();
+                 FileOutputStream out = new FileOutputStream(saveFile, false);) {
 
-            // データ書き込み
-            byte[] b = new byte[4096];
-            int readByte = 0;
+                // データ書き込み
+                byte[] b = new byte[4096];
+                int readByte = 0;
 
-            while(-1 != (readByte = in.read(b))) {
-                out.write(b, 0, readByte);
+                while(-1 != (readByte = in.read(b))) {
+                    out.write(b, 0, readByte);
+                }
             }
-
         } catch (Exception e) {
             log.error("ファイルのダウンロードに失敗しました", e);
             throw new DataGetterException(e);
-        } finally {
-            try{
-                // クローズ処理
-                if(out != null) {
-                    out.close();
-                }
-                if(in != null) {
-                    in.close();
-                }
-            } catch (IOException e) {
-                log.error("ストリームのクローズに失敗しました", e);
-                throw new DataGetterException(e);
-            }
         }
-    }
-
-    /**
-     * 指定機種のリストファイルを取得する処理
-     * @param machineList 台リスト
-     * @throws DataGetterException 例外
-     */
-    private List<MMachineList> getMachineList() throws DataGetterException {
-        return null;
     }
 
     /**
